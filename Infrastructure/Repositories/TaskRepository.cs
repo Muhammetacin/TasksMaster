@@ -21,5 +21,30 @@ namespace Infrastructure.Repositories
         {
             return await _taskContext.Tasks.ToListAsync();
         }
+        public async Task<Domain.Task?> GetTaskByIdAsync(Guid id)
+        {
+            return await _taskContext.Tasks.FindAsync(id);
+        }
+        public async Task<Domain.Task> CreateTaskAsync(Domain.Task task)
+        {
+            var entityEntry = await _taskContext.Tasks.AddAsync(task);
+            await _taskContext.SaveChangesAsync();
+            return entityEntry.Entity;
+        }
+        public async Task<Domain.Task> UpdateTaskAsync(Domain.Task task)
+        {
+            var entityEntry = _taskContext.Tasks.Update(task);
+            await _taskContext.SaveChangesAsync();
+            return entityEntry.Entity;
+        }
+        public async Task DeleteTaskAsync(Guid id)
+        {
+            var task = await _taskContext.Tasks.FindAsync(id);
+            if (task != null)
+            {
+                _taskContext.Tasks.Remove(task);
+                await _taskContext.SaveChangesAsync();
+            }
+        }
     }
 }

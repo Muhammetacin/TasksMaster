@@ -19,5 +19,44 @@ namespace Application.Services
         {
             return await _taskRepository.GetAllTasksAsync();
         }
+
+        public async Task<Domain.Task?> GetTaskByIdAsync(Guid id)
+        {
+            return await _taskRepository.GetTaskByIdAsync(id);
+        }
+
+        public async Task<Domain.Task> CreateTaskAsync(Domain.Task task)
+        {
+            return await _taskRepository.CreateTaskAsync(task);
+        }
+
+        public async Task<Domain.Task> UpdateTaskAsync(Domain.Task task)
+        {
+            var existingTask = await _taskRepository.GetTaskByIdAsync(task.Id);
+            if (existingTask == null)
+            {
+                throw new Exception("Task not found");
+            }
+
+            // Update de eigenschappen van de bestaande taak
+            existingTask.Title = task.Title;
+            existingTask.Description = task.Description;
+            existingTask.Status = task.Status;
+            existingTask.LastModifiedOn = DateTimeOffset.UtcNow;
+
+            // Als de taak is voltooid, stel dan CompletedOn in
+            if (task.Status == Domain.TaskStatus.Completed)
+            {
+                existingTask.CompletedOn = task.CompletedOn;
+            }
+
+            // Sla de bijgewerkte taak op in ITaskRepository
+            return await _taskRepository.UpdateTaskAsync(existingTask);
+        }
+
+        public async Task DeleteTaskAsync(Guid id)
+        {
+            await _taskRepository.DeleteTaskAsync(id);
+        }
     }
 }
