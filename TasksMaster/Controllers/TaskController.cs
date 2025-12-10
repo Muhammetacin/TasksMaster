@@ -41,11 +41,11 @@ namespace TasksMaster.Controllers
 
             var taskReadDto = _mapper.Map<TaskReadDto>(createdTask);
 
-            // Zorgt voor: HTTP 201 Created + de Location header (URL naar de zojuist gecreëerde Task)
-            return CreatedAtAction(
-                nameof(GetTaskByIdAsync), // Naam van de GET-methode voor één Task
-                new { id = taskReadDto.Id }, // Route parameters om de URL te bouwen
-                createdTask // De Task die we als body terugsturen
+            // Use the named route to generate the URL for the created resource
+            return CreatedAtRoute(
+                "GetTaskById", // route name defined on the GET by id endpoint
+                new { id = taskReadDto.Id },
+                taskReadDto
             );
         }
 
