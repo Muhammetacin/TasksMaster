@@ -1,5 +1,7 @@
 ﻿using Application.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using TasksMaster.DTOs;
 
 namespace TasksMaster.Controllers
 {
@@ -8,55 +10,59 @@ namespace TasksMaster.Controllers
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
+        private readonly IMapper _mapper;
 
-        public TaskController(ITaskService taskService)
+        public TaskController(ITaskService taskService, IMapper mapper)
         {
             _taskService = taskService;
+            _mapper = mapper;
         }
 
         [HttpGet(Name = "GetTasks")]
-        public async Task<IEnumerable<Domain.Task>> GetTasksAsync()
+        public async Task<IEnumerable<TaskReadDto>> GetTasksAsync()
         {
-            return await _taskService.GetAllTasksAsync();
+            var tasks = await _taskService.GetAllTasksAsync();
+            return _mapper.Map<IEnumerable<TaskReadDto>>(tasks);
         }
 
         [HttpGet("{id}", Name = "GetTaskById")]
-        public async Task<ActionResult<Domain.Task?>> GetTaskByIdAsync(Guid id)
+        public async Task<ActionResult<TaskReadDto?>> GetTaskByIdAsync(Guid id)
         {
-            return await _taskService.GetTaskByIdAsync(id);
+            var task = await _taskService.GetTaskByIdAsync(id);
+            var taskReadDto = _mapper.Map<TaskReadDto>(task);
+            return taskReadDto == null ? NotFound() : Ok(taskReadDto);
         }
 
         [HttpPost(Name = "CreateTask")]
-        public async Task<ActionResult<Domain.Task>> CreateTaskAsync([FromBody] Domain.Task task)
+        public async Task<ActionResult<TaskReadDto>> CreateTaskAsync([FromBody] TaskCreateDto task)
         {
-            var createdTask = await _taskService.CreateTaskAsync(task);
+            var taskToCreate = _mapper.Map<Domain.Task>(task);
+            var createdTask = await _taskService.CreateTaskAsync(taskToCreate);
+
+            var taskReadDto = _mapper.Map<TaskReadDto>(createdTask);
 
             // Zorgt voor: HTTP 201 Created + de Location header (URL naar de zojuist gecreëerde Task)
             return CreatedAtAction(
                 nameof(GetTaskByIdAsync), // Naam van de GET-methode voor één Task
-                new { id = createdTask.Id }, // Route parameters om de URL te bouwen
+                new { id = taskReadDto.Id }, // Route parameters om de URL te bouwen
                 createdTask // De Task die we als body terugsturen
             );
         }
 
         [HttpPut("{id}", Name = "UpdateTask")]
-        public async Task<ActionResult<Domain.Task>> UpdateTaskAsync(Guid id, [FromBody] Domain.Task task)
+        public async Task<ActionResult<TaskReadDto>> UpdateTaskAsync(Guid id, [FromBody] TaskUpdateDto taskUpdateDto)
         {
-            // Controle: Zorg ervoor dat de ID in de URL en de body overeenkomen
-            if (id != task.Id)
-            {
-                // Geeft aan dat het verzoek conflicterende informatie bevat
-                return BadRequest("Task ID in the URL must match the ID in the body.");
-            }
-
             var existingTask = await _taskService.GetTaskByIdAsync(id);
             if (existingTask == null)
             {
                 return NotFound();
             }
 
+            _mapper.Map(taskUpdateDto, existingTask);
+
             var updatedTask = await _taskService.UpdateTaskAsync(existingTask);
-            return Ok(updatedTask);
+            var taskReadDto = _mapper.Map<TaskReadDto>(updatedTask);
+            return Ok(taskReadDto);
         }
 
         [HttpDelete("{id}", Name = "DeleteTask")]

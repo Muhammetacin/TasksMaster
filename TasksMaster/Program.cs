@@ -16,6 +16,7 @@ builder.Services.AddSwaggerGen();
 // Middlewares
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<TaskContext>(options =>
     options.UseSqlite("Data Source=TasksMaster.db"));
