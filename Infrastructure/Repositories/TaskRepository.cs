@@ -23,7 +23,7 @@ namespace Infrastructure.Repositories
         }
         public async Task<Domain.Task?> GetTaskByIdAsync(Guid id)
         {
-            return await _taskContext.Tasks.FindAsync(id);
+            return await _taskContext.Tasks.FirstOrDefaultAsync(t => t.Id == id);
         }
         public async Task<Domain.Task> CreateTaskAsync(Domain.Task task)
         {
