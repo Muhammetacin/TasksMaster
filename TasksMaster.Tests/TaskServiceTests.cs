@@ -138,5 +138,127 @@ namespace TasksMaster.Tests
             mockRepository.Verify(repo => repo.GetTaskByIdAsync(taskId), Times.Once);
         }
         #endregion
+
+        #region CreateTaskAsync Tests
+        [Fact]
+        public async Task CreateTaskAsync_ShouldCreateAndReturnTask()
+        {
+            // ARRANGE
+            var newTask = new Domain.Task
+            {
+                Id = Guid.NewGuid(),
+                Title = "New Mock Task",
+                Description = "This is a new mock task.",
+                Status = Domain.TaskStatus.ToDo
+            };
+            var mockRepository = new Mock<ITaskRepository>();
+            mockRepository
+                .Setup(repo => repo.CreateTaskAsync(newTask))
+                .ReturnsAsync(newTask);
+            var service = new TaskService(mockRepository.Object);
+
+            // ACT
+            var result = await service.CreateTaskAsync(newTask);
+
+            // ASSERT
+            Assert.NotNull(result);
+            Assert.Equal(newTask.Id, result.Id);
+            Assert.Equal(newTask.Title, result.Title);
+            Assert.Equal(newTask.Description, result.Description);
+            Assert.Equal(newTask.Status, result.Status);
+
+            mockRepository.Verify(repo => repo.CreateTaskAsync(newTask), Times.Once);
+        }
+        #endregion
+
+        #region UpdateTaskAsync Tests
+        [Fact]
+        public async Task UpdateTaskAsync_ShouldUpdateAndReturnTask_WhenTaskExists()
+        {
+            // ARRANGE
+            var existingTask = new Domain.Task
+            {
+                Id = Guid.NewGuid(),
+                Title = "Existing Task",
+                Description = "This is an existing task.",
+                Status = Domain.TaskStatus.ToDo
+            };
+            var updatedTask = new Domain.Task
+            {
+                Id = existingTask.Id,
+                Title = "Updated Task",
+                Description = "This task has been updated.",
+                Status = Domain.TaskStatus.InProgress
+            };
+            var mockRepository = new Mock<ITaskRepository>();
+            mockRepository
+                .Setup(repo => repo.GetTaskByIdAsync(existingTask.Id))
+                .ReturnsAsync(existingTask);
+            // Accept any Task instance and return the instance passed to UpdateTaskAsync
+            mockRepository
+                .Setup(repo => repo.UpdateTaskAsync(It.IsAny<Domain.Task>()))
+                .ReturnsAsync((Domain.Task t) => t);
+            var service = new TaskService(mockRepository.Object);
+
+            // ACT
+            var result = await service.UpdateTaskAsync(updatedTask);
+
+            // ASSERT
+            Assert.NotNull(result);
+            Assert.Equal(updatedTask.Id, result.Id);
+            Assert.Equal(updatedTask.Title, result.Title);
+            Assert.Equal(updatedTask.Description, result.Description);
+            Assert.Equal(updatedTask.Status, result.Status);
+
+            mockRepository.Verify(repo => repo.GetTaskByIdAsync(existingTask.Id), Times.Once);
+            mockRepository.Verify(repo => repo.UpdateTaskAsync(It.Is<Domain.Task>(t => t.Id == existingTask.Id)), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateTaskAsync_ShouldThrowException_WhenTaskDoesNotExist()
+        {
+            // ARRANGE
+            var nonExistentTask = new Domain.Task
+            {
+                Id = Guid.NewGuid(),
+                Title = "Non-Existent Task",
+                Description = "This task does not exist.",
+                Status = Domain.TaskStatus.ToDo
+            };
+            var mockRepository = new Mock<ITaskRepository>();
+            mockRepository
+                .Setup(repo => repo.GetTaskByIdAsync(nonExistentTask.Id))
+                .ReturnsAsync((Domain.Task?)null); // Retourneer null voor niet-bestaande taak
+            var service = new TaskService(mockRepository.Object);
+
+            // ACT & ASSERT
+            await Assert.ThrowsAsync<Exception>(async () =>
+            {
+                await service.UpdateTaskAsync(nonExistentTask);
+            });
+
+            mockRepository.Verify(repo => repo.GetTaskByIdAsync(nonExistentTask.Id), Times.Once);
+        }
+        #endregion
+
+        #region DeleteTaskAsync Tests
+        [Fact]
+        public async Task DeleteTaskAsync_ShouldDeleteTask_WhenTaskExists()
+        {
+            // ARRANGE
+            var taskId = Guid.NewGuid();
+            var mockRepository = new Mock<ITaskRepository>();
+            mockRepository
+                .Setup(repo => repo.DeleteTaskAsync(taskId))
+                .Returns(Task.CompletedTask);
+            var service = new TaskService(mockRepository.Object);
+
+            // ACT
+            await service.DeleteTaskAsync(taskId);
+
+            // ASSERT
+            mockRepository.Verify(repo => repo.DeleteTaskAsync(taskId), Times.Once);
+        }
+        #endregion
     }
 }
