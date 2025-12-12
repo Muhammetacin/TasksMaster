@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36717.8 d17.14
+VisualStudioVersion = 17.14.36717.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksMaster", "TasksMaster\TasksMaster.csproj", "{EFF47028-8066-421C-9E53-A682FB7FD3C1}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{191BA735-F4E2-487B-8C62-F5BA64D402C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{2A137CCD-2780-4A9D-9644-2B3399AB36DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TasksMaster.Tests", "TasksMaster.Tests\TasksMaster.Tests.csproj", "{ABB84A01-9939-4A1E-8D85-B22630653E7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2A137CCD-2780-4A9D-9644-2B3399AB36DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A137CCD-2780-4A9D-9644-2B3399AB36DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A137CCD-2780-4A9D-9644-2B3399AB36DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABB84A01-9939-4A1E-8D85-B22630653E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABB84A01-9939-4A1E-8D85-B22630653E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABB84A01-9939-4A1E-8D85-B22630653E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABB84A01-9939-4A1E-8D85-B22630653E7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
