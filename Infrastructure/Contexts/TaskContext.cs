@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Identities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Contexts
 {
-    public class TaskContext : DbContext
+    public class TaskContext : IdentityDbContext<ApplicationUser>
     {
         public TaskContext(DbContextOptions<TaskContext> options) : base(options)
         {
