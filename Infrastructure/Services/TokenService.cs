@@ -26,15 +26,19 @@ namespace Infrastructure.Services
 
         public async Task<string> GetToken(ApplicationUser applicationUser)
         {
+            // 1. Configuratie ophalen
             // Haal secret uit van appsettings.json
             var secret = _configuration["JwtSettings:Secret"];
+            var expiryMinutes = Convert.ToDouble(_configuration["JwtSettings:ExpiryMinutes"]);
 
+            // 2. Security Key maken (Encoding en Symmetrische Key)
             // Zet om naar bytes, Security Key werkt met bytes
             var keyBytes = Encoding.UTF8.GetBytes(secret);
 
             // Nieuw Security Key aanmaken met secret in bytes
             var securityKey = new SymmetricSecurityKey(keyBytes);
 
+            // 3. Claims opbouwen (ID, Naam, E-mail)
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.NameIdentifier, applicationUser.Id),
@@ -42,6 +46,7 @@ namespace Infrastructure.Services
                 new Claim(ClaimTypes.Name, applicationUser.UserName)
             };
 
+            // 4. Rollen claims toevoegen via UserManager
             // Rollen ophalen en toevoegen aan claims
             var roles = await _userManager.GetRolesAsync(applicationUser);
             foreach (var role in roles)
@@ -49,13 +54,15 @@ namespace Infrastructure.Services
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
+            // 5. Token Descriptor definiëren
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(2),
+                Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
                 SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature)
             };
-            
+
+            // 6. Token aanmaken en retourneren als string
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 

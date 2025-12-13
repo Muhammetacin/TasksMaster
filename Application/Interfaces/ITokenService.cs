@@ -9,6 +9,6 @@ namespace Application.Interfaces
 {
     public interface ITokenService
     {
-        public string GetToken(ApplicationUser applicationUser);
+        public Task<string> GetToken(ApplicationUser applicationUser);
     }
 }
