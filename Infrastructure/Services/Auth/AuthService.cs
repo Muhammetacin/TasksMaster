@@ -53,5 +53,37 @@ namespace Infrastructure.Services.Auth
             var token = await _tokenService.GetTokenAsync(user);
             return new LoginResponseDto { IsAuthenticated = true, Token = token };
         }
+
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto registerRequestDto)
+        {
+            // Maak een nieuwe ApplicationUser aan met de gegevens uit registerRequestDto
+            var newUser = new ApplicationUser
+            {
+                UserName = registerRequestDto.Username,
+                Email = registerRequestDto.Email,
+                SecurityStamp = System.Guid.NewGuid().ToString() // SecurityStamp is nodig voor logging out
+            };
+
+            // Registreer de nieuwe gebruiker met het opgegeven wachtwoord
+            var result = await _userManager.CreateAsync(newUser, registerRequestDto.Password);
+
+            if (result.Succeeded)
+            {
+                return new RegisterResponseDto
+                {
+                    IsSuccess = true,
+                    Errors = new List<string>() // Geef een lege lijst terug in plaats van null
+                };
+            }
+
+            // Fout: Verzamel en retourneer de foutmeldingen
+            var errors = result.Errors.Select(e => e.Description).ToList();
+
+            return new RegisterResponseDto
+            {
+                IsSuccess = false,
+                Errors = errors
+            };
+        }
     }
 }

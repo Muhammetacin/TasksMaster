@@ -27,5 +27,16 @@ namespace TasksMaster.Controllers
 
             return Ok(result);
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
+        {
+            var result = await _authService.RegisterAsync(registerRequestDto);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Errors);
+            }
+            return Ok(result);
+        }
     }
 }
