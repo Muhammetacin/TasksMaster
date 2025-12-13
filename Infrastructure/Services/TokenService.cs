@@ -24,7 +24,7 @@ namespace Infrastructure.Services
             _userManager = userManager;
         }
 
-        public async Task<string> GetToken(ApplicationUser applicationUser)
+        public async Task<string> GetTokenAsync(ApplicationUser applicationUser)
         {
             // 1. Configuratie ophalen
             // Haal secret uit van appsettings.json

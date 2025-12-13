@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TasksMaster.DTOs;
 
@@ -33,6 +34,7 @@ namespace TasksMaster.Controllers
             return taskReadDto == null ? NotFound() : Ok(taskReadDto);
         }
 
+        [Authorize]
         [HttpPost(Name = "CreateTask")]
         public async Task<ActionResult<TaskReadDto>> CreateTaskAsync([FromBody] TaskCreateDto task)
         {
@@ -49,6 +51,7 @@ namespace TasksMaster.Controllers
             );
         }
 
+        [Authorize]
         [HttpPut("{id}", Name = "UpdateTask")]
         public async Task<ActionResult<TaskReadDto>> UpdateTaskAsync(Guid id, [FromBody] TaskUpdateDto taskUpdateDto)
         {
@@ -65,6 +68,7 @@ namespace TasksMaster.Controllers
             return Ok(taskReadDto);
         }
 
+        [Authorize]
         [HttpDelete("{id}", Name = "DeleteTask")]
         public async Task<IActionResult> DeleteTaskAsync(Guid id)
         {
