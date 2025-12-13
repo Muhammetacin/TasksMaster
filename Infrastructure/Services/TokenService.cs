@@ -43,7 +43,12 @@ namespace Infrastructure.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, applicationUser.Id),
                 new Claim(ClaimTypes.Email, applicationUser.Email),
-                new Claim(ClaimTypes.Name, applicationUser.UserName)
+                new Claim(ClaimTypes.Name, applicationUser.UserName),
+
+                new Claim(JwtRegisteredClaimNames.Sub, applicationUser.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, applicationUser.UserName),
+                new Claim("security_stamp", applicationUser.SecurityStamp)
             };
 
             // 4. Rollen claims toevoegen via UserManager

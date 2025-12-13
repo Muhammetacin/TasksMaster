@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Application.Interfaces.Auth;
 using Application.Services;
+using Domain.Constants;
 using Domain.Identities;
 using Infrastructure.Contexts;
 using Infrastructure.Repositories;
@@ -110,6 +111,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    // Voer de Seeding Methode uit (die we hieronder definiëren)
+    await SeedDataAsync(roleManager, userManager);
+}
+
 app.UseHttpsRedirection();
 
 // Enable authentication and authorization middlewares, make sure authentication comes before authorization
@@ -117,5 +127,35 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+async Task SeedDataAsync(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+{
+    // 1. Zorg dat de Rollen bestaan
+    if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+    {
+        await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+    }
+    if (!await roleManager.RoleExistsAsync(UserRoles.User))
+    {
+        await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+    }
+
+    // 2. Maak een eerste Admin-gebruiker aan (optioneel, maar handig)
+    var adminUser = await userManager.FindByEmailAsync("admin@example.com");
+    if (adminUser == null)
+    {
+        var newAdmin = new ApplicationUser
+        {
+            UserName = "AdminUser",
+            Email = "admin@mail.com",
+            SecurityStamp = Guid.NewGuid().ToString()
+        };
+
+        await userManager.CreateAsync(newAdmin, "Azerty123!");
+
+        // Ken de Admin rol toe
+        await userManager.AddToRoleAsync(newAdmin, UserRoles.Admin);
+    }
+}
 
 app.Run();
