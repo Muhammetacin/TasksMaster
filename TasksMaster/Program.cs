@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using TasksMaster.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -112,6 +113,8 @@ builder.Services.AddCors(options => {
 
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>(); // Zet de middleware helemaal bovenaan in de pipeline, zodat hij overal "omheen" zit
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
